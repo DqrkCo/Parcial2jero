@@ -59,9 +59,10 @@ CREATE TABLE IF NOT EXISTS tarjeta (
     -- @Column(name = "fecha_exp")
     fecha_exp   VARCHAR(7)   NOT NULL  COMMENT '@Column heredado — formato MM/AAAA',
 
-    -- @Column(name = "estado")  true=activa | false=bloqueada
-    estado      TINYINT(1)   NOT NULL
-                    DEFAULT 1          COMMENT '@Column heredado — 1 activa / 0 bloqueada',
+    -- @Column(name = "estado")  HU-01: Activa | Bloqueada | Cancelada
+    -- Obligatorio: sin DEFAULT, y el ENUM rechaza cualquier otro valor.
+    estado      ENUM('Activa','Bloqueada','Cancelada') NOT NULL
+                    COMMENT '@Column heredado — HU-01 estado de la tarjeta',
 
     -- @ManyToOne  @JoinColumn(name = "titular_id")
     -- Cardinalidad: N tarjetas → 1 titular  (diagrama: * → 1)
@@ -146,10 +147,10 @@ INSERT INTO titular (id, nombre) VALUES
     ('T002', 'María López');
 
 INSERT INTO tarjeta (numero, fecha_exp, estado, titular_id) VALUES
-    ('4111111111111111', '12/2027', 1, 'T001'),
-    ('5500005555555559', '06/2026', 1, 'T001'),
-    ('4000056655665556', '09/2025', 0, 'T002'),
-    ('5105105105105100', '03/2027', 1, 'T002');
+    ('4111111111111111', '12/2027', 'Activa',    'T001'),
+    ('5500005555555559', '06/2026', 'Activa',    'T001'),
+    ('4000056655665556', '09/2025', 'Bloqueada', 'T002'),
+    ('5105105105105100', '03/2027', 'Activa',    'T002');
 
 INSERT INTO tarjeta_debito (numero, saldo) VALUES
     ('4111111111111111', 1500000.00),
