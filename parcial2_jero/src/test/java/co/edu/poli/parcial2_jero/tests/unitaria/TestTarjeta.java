@@ -9,12 +9,27 @@ import co.edu.poli.parcial2_jero.modelo.EstadoTarjeta;
 import co.edu.poli.parcial2_jero.modelo.Tarjeta;
 import co.edu.poli.parcial2_jero.modelo.Titular;
 
+
 /**
  * Pruebas unitarias para validar las reglas de negocio, mutación de estado y excepciones
  * definidas en el modelo {@link Tarjeta}.
  */
 public class TestTarjeta {
 
+	private interface Accion {
+	    void ejecutar() throws Exception;
+	}
+
+	private static void assertLanzaIAE(Accion accion) {
+	    try {
+	        accion.ejecutar();
+	    } catch (IllegalArgumentException e) {
+	        return;
+	    } catch (Exception e) {
+	        fail("Se esperaba IllegalArgumentException pero fue " + e);
+	    }
+	    fail("Se esperaba IllegalArgumentException");
+	}
 	/**
 	 * Verifica que el método {@link Tarjeta#bloquear()} cambie correctamente el estado.
 	 */
@@ -67,7 +82,7 @@ public class TestTarjeta {
 	void constructor_sinEstado_lanzaExcepcion() {
 		Titular titular = new Titular("1", "Test");
 
-		assertThrows(IllegalArgumentException.class, () -> new Debito("123", "12/2025", null, titular, 1000));
+		assertLanzaIAE(() -> new Debito("123", "12/2025", null, titular, 1000));
 	}
 
 	/**
@@ -78,7 +93,7 @@ public class TestTarjeta {
 		Titular titular = new Titular("1", "Test");
 		Tarjeta t = new Debito("123", "12/2025", EstadoTarjeta.ACTIVA, titular, 1000);
 
-		assertThrows(IllegalArgumentException.class, () -> t.setEstado(null));
+		assertLanzaIAE(() -> t.setEstado(null));
 		assertEquals(EstadoTarjeta.ACTIVA, t.getEstado());
 	}
 
@@ -90,8 +105,8 @@ public class TestTarjeta {
 		assertEquals(EstadoTarjeta.ACTIVA, EstadoTarjeta.desdeEtiqueta("Activa"));
 		assertEquals(EstadoTarjeta.BLOQUEADA, EstadoTarjeta.desdeEtiqueta("Bloqueada"));
 		assertEquals(EstadoTarjeta.CANCELADA, EstadoTarjeta.desdeEtiqueta("Cancelada"));
-		assertThrows(IllegalArgumentException.class, () -> EstadoTarjeta.desdeEtiqueta("Suspendida"));
-		assertThrows(IllegalArgumentException.class, () -> EstadoTarjeta.desdeEtiqueta(null));
+		assertLanzaIAE(()-> EstadoTarjeta.desdeEtiqueta("Suspendida"));
+		assertLanzaIAE(()-> EstadoTarjeta.desdeEtiqueta(null));
 	}
 
 	/**
